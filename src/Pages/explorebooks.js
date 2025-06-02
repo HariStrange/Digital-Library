@@ -39,7 +39,7 @@ const ExploreBooks = () => {
   });
 
   return (
-    <div className="p-6">
+    <div className="p-4">
       {/* Single filter UI */}
       <div className="flex flex-col items-end mb-8 gap-4">
         <input

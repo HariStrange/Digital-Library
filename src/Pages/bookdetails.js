@@ -153,9 +153,9 @@ const BookDetail = () => {
     book.volumeInfo.imageLinks?.thumbnail || book.thumbnail || book.image || "";
 
   return (
-    <div className="p-4 w-screen min-h-[90vh]">
+    <div className="p-4 min-h-[90vh]">
       {/* Book Info */}
-      <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start w-screen mx-auto">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start mx-auto">
         <div className="flex-shrink-0 w-full md:w-[260px] flex justify-center md:justify-start mb-6 md:mb-0">
           {!showCustomCover && image ? (
             <img

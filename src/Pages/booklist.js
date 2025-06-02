@@ -6,8 +6,8 @@ const DEFAULT_IMAGE = "https://via.placeholder.com/120x180?text=No+Image";
 
 function BookList({ books }) {
   return (
-    <div className=" p-4 flex items-center justify-center w-screen">
-      <div className="flex items-center flex-wrap justify-start m-auto gap-4 p-4">
+    <div className="flex items-center justify-center p-4  ">
+      <div className="flex items-center flex-wrap justify-center m-auto gap-6 p-4">
         {books.map((book, index) => {
           const id = book.id || index;
           const title = book.title || book.volumeInfo?.title || "Untitled";
