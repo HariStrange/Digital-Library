@@ -29,13 +29,15 @@ const ExploreBooks = () => {
       .finally(() => setLoading(false));
   }, [genre]);
 
+  
   const filteredBooks = allBooks.filter((book) => {
-    const title = book.volumeInfo?.title?.toLowerCase() || "";
-    const authors = book.volumeInfo?.authors?.join(" ").toLowerCase() || "";
-    return (
-      title.includes(search.toLowerCase()) ||
-      authors.includes(search.toLowerCase())
-    );
+    const title = (
+      book.title ||
+      book.volumeInfo?.title ||
+      "Untitled"
+    ).toLowerCase();
+    const query = search.trim().toLowerCase();
+    return title.includes(query);
   });
 
   return (
@@ -44,7 +46,7 @@ const ExploreBooks = () => {
       <div className="flex flex-col items-end mb-8 gap-4">
         <input
           type="text"
-          placeholder="🔎Search by book name or author..."
+          placeholder="🔎 Search by book name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border rounded px-4 py-2 w-2/3 md:w-1/4 focus:ring focus:ring-blue-200 focus:outline-none"
@@ -80,11 +82,16 @@ const ExploreBooks = () => {
             }
           />
           <p className="text-gray-500 text-lg mb-4 text-center">
-            No books found for your search or in the "{genre}" genre.
+            {search
+              ? `No books found for "${search}" in the "${genre}" genre.`
+              : `No books found in the "${genre}" genre.`}
           </p>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => setGenre("All") || setSearch("")}
+            onClick={() => {
+              setGenre("All");
+              setSearch("");
+            }}
           >
             Go to All Books
           </button>
