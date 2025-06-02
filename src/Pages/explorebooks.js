@@ -10,6 +10,7 @@ const GENRES = [
   "History",
   "Horror",
   "Romance",
+  "Tamil",
   "Science Fiction",
   "Thriller",
   "Non-Fiction",
