@@ -67,7 +67,7 @@ src/
 ![Home](/src/screenshots/1.jpeg)
 ![Explore Books](/src/screenshots/6.jpeg)
 ![Book Details](/src/screenshots/4.jpeg)
-![SimilarBooks](/src/screenshots/9.jpeg)
+![SimilarBooks](/src/screenshots/9.png)
 ![Cart](/src/screenshots/2.jpeg)
 ![CheckOut](/src/screenshots/8.jpeg)
 ![EmptyCart](/src/screenshots/7.jpeg)
