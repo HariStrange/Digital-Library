@@ -22,7 +22,7 @@ Users can explore, search, rent, and buy books by genre, with a beautiful UI and
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/digital-library.git
+git clone https://github.com/Haristrange/digital-library.git
 cd digital-library
 ```
 
