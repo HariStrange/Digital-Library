@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCartPlus } from "react-icons/fa";
 import BookList from "./booklist";
+import CustomCover from "../components/CustomCover";
 
 const DEFAULT_IMAGE = "https://via.placeholder.com/300x450?text=No+Image";
 
@@ -13,6 +14,7 @@ const BookDetail = () => {
   const [similarGenreBooks, setSimilarGenreBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showRentModal, setShowRentModal] = useState(false);
+  const [showCustomCover, setShowCustomCover] = useState(false);
 
   // Fetch book details by ID
   useEffect(() => {
@@ -76,19 +78,30 @@ const BookDetail = () => {
   // Add to cart handler
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Use "Free" if price is not a valid number
+    let price = book.saleInfo?.listPrice?.amount;
+    if (!price || isNaN(price)) {
+      price = "Free";
+    }
     const cartItem = {
       id: book.id,
       title: book.volumeInfo.title,
       authors: book.volumeInfo.authors || ["Unknown"],
-      thumbnail: book.volumeInfo.imageLinks?.thumbnail || DEFAULT_IMAGE,
+      thumbnail:
+        book.volumeInfo.imageLinks?.thumbnail ||
+        book.thumbnail ||
+        book.image ||
+        "",
+      price,
+      quantity: 1,
     };
-    // Avoid duplicates
-    if (!cart.some((item) => item.id === cartItem.id)) {
+    const existingIndex = cart.findIndex((item) => item.id === cartItem.id);
+    if (existingIndex !== -1) {
+      alert("Book already in cart!");
+    } else {
       cart.push(cartItem);
       localStorage.setItem("cart", JSON.stringify(cart));
       alert("Book added to cart!");
-    } else {
-      alert("Book already in cart!");
     }
   };
 
@@ -98,25 +111,33 @@ const BookDetail = () => {
   };
 
   // Buy handler
-  // Example for BookDetail.js or similar
   const handleBuy = () => {
-  navigate("/buy-dummy", {
-    state: {
-      book: {
-        ...book,
-        thumbnail:
-          book.thumbnail ||
-          book.image ||
-          book.volumeInfo?.imageLinks?.thumbnail ||
-          "https://via.placeholder.com/120x180?text=No+Image",
-      },
-    },
-  });
-};
+    // Use "Free" if price is not a valid number
+    let price = book.saleInfo?.listPrice?.amount;
+    if (!price || isNaN(price)) {
+      price = "Free";
+    }
+    const buyItem = {
+      id: book.id,
+      title: book.volumeInfo.title,
+      authors: book.volumeInfo.authors || ["Unknown"],
+      price,
+      thumbnail:
+        book.volumeInfo.imageLinks?.thumbnail ||
+        book.thumbnail ||
+        book.image ||
+        "",
+      quantity: 1,
+    };
+    // Pass as a cart array for BuyDummy
+    navigate("/buy-dummy", {
+      state: { cart: [buyItem] },
+    });
+  };
 
   if (loading)
     return (
-      <div className="p-6 min-h-[70vh] flex flex-col items-center justify-center">
+      <div className="p-6 min-h-[70vh] flex flex-col items-center justify-center ">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
         <p className="text-center mt-4">Loading book details...</p>
       </div>
@@ -125,27 +146,43 @@ const BookDetail = () => {
 
   const volume = book.volumeInfo;
   const title = volume.title;
-  const authors = volume.authors?.join(", ") || "Unknown Author";
+  const authors = volume.authors || ["Unknown Author"];
   const genre = volume.categories?.[0] || "Unknown Genre";
   const description = volume.description || "No description available.";
-  const image = volume.imageLinks?.thumbnail || DEFAULT_IMAGE;
+  const image =
+    book.volumeInfo.imageLinks?.thumbnail || book.thumbnail || book.image || "";
 
   return (
-    <div className="p-6">
+    <div className="p-4 w-screen min-h-[90vh]">
       {/* Book Info */}
-      <div className="flex flex-col md:flex-row gap-6">
-        <img
-          src={image}
-          alt={title}
-          className="w-full md:w-1/3 rounded-lg shadow"
-          onError={(e) => (e.target.src = DEFAULT_IMAGE)}
-        />
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-lg text-gray-700 mt-2">by {authors}</p>
-          <p className="text-md text-gray-500 mt-2">Genre: {genre}</p>
+      <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start w-screen mx-auto">
+        <div className="flex-shrink-0 w-full md:w-[260px] flex justify-center md:justify-start mb-6 md:mb-0">
+          {!showCustomCover && image ? (
+            <img
+              src={image}
+              alt={title}
+              className="rounded-lg shadow object-cover"
+              style={{ width: 220, height: 330, background: "#f3f3f3" }}
+              onError={() => setShowCustomCover(true)}
+            />
+          ) : (
+            <CustomCover
+              title={title}
+              authors={authors}
+              width={220}
+              height={330}
+              className="w-full"
+            />
+          )}
+        </div>
+        <div className="flex-1 w-full">
+          <h1 className="text-3xl font-bold text-left">{title}</h1>
+          <p className="text-lg text-gray-700 mt-2 text-left">
+            by {Array.isArray(authors) ? authors.join(", ") : authors}
+          </p>
+          <p className="text-md text-gray-500 mt-2 text-left">Genre: {genre}</p>
           <p
-            className="mt-4 text-gray-800"
+            className="mt-4 text-gray-800 text-left"
             dangerouslySetInnerHTML={{ __html: description }}
           ></p>
           <div className="mt-4 flex gap-3 flex-wrap">
@@ -201,9 +238,9 @@ const BookDetail = () => {
       )}
 
       {/* Similar Books by Author */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-semibold mb-4">
-          Similar books by {authors}
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-2">
+          Similar books by {Array.isArray(authors) ? authors[0] : authors}
         </h2>
         {similarBooks.length > 0 ? (
           <BookList
@@ -211,17 +248,30 @@ const BookDetail = () => {
               id: b.id,
               title: b.volumeInfo.title,
               authors: b.volumeInfo.authors || ["Unknown"],
-              thumbnail: b.volumeInfo.imageLinks?.thumbnail,
+              thumbnail:
+                b.volumeInfo.imageLinks?.thumbnail ||
+                b.thumbnail ||
+                b.image ||
+                "",
               price: "Free",
             }))}
           />
         ) : (
-          <p className="text-gray-500">No similar books found.</p>
+          <div className="flex flex-col items-center">
+            <img
+              src="https://res.cloudinary.com/dx5lg8mei/image/upload/v1748845446/open-book_gcmmiw.png"
+              alt="No Similar Books"
+              className="mb-4"
+              style={{ width: "150px", height: "150px" }}
+              onError={(e) => (e.target.src = DEFAULT_IMAGE)}
+            />
+            <p className="text-gray-500">No similar books found.</p>
+          </div>
         )}
       </div>
       {/* Similar Books by Genre */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-semibold mb-4">
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-2">
           Similar books by {genre}
         </h2>
         {similarGenreBooks.length > 0 ? (
@@ -230,12 +280,25 @@ const BookDetail = () => {
               id: b.id,
               title: b.volumeInfo.title,
               authors: b.volumeInfo.authors || ["Unknown"],
-              thumbnail: b.volumeInfo.imageLinks?.thumbnail,
+              thumbnail:
+                b.volumeInfo.imageLinks?.thumbnail ||
+                b.thumbnail ||
+                b.image ||
+                "",
               price: "Free",
             }))}
           />
         ) : (
-          <p className="text-gray-500">No similar books found.</p>
+          <div className="flex flex-col items-center">
+            <img
+              src="https://res.cloudinary.com/dx5lg8mei/image/upload/v1748845446/open-book_gcmmiw.png"
+              alt="No Similar Books"
+              className="mb-4"
+              style={{ width: "150px", height: "150px" }}
+              onError={(e) => (e.target.src = DEFAULT_IMAGE)}
+            />
+            <p className="text-gray-500">No similar books found.</p>
+          </div>
         )}
       </div>
     </div>

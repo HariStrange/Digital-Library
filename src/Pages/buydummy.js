@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import CustomCover from "../components/CustomCover";
 
 const DEFAULT_IMAGE = "https://via.placeholder.com/120x180?text=No+Image";
 
 const BuyDummy = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const book = location.state?.book;
+  const cart = location.state?.cart || [];
 
   const [form, setForm] = useState({
     name: "",
@@ -17,10 +18,10 @@ const BuyDummy = () => {
   });
   const [showModal, setShowModal] = useState(false);
 
-  if (!book) {
+  if (!cart.length) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center">
-        <p className="text-red-500 mb-4">No book selected for purchase.</p>
+        <p className="text-red-500 mb-4">No items selected for purchase.</p>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded"
           onClick={() => navigate("/books")}
@@ -38,6 +39,8 @@ const BuyDummy = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowModal(true);
+    // Clear cart after successful checkout
+    localStorage.removeItem("cart");
     setTimeout(() => {
       setShowModal(false);
       navigate("/books");
@@ -46,24 +49,59 @@ const BuyDummy = () => {
 
   return (
     <div className="min-h-[90vh] flex flex-col items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Buy Book</h2>
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={book.thumbnail || DEFAULT_IMAGE}
-            alt={book.title}
-            className="rounded shadow mb-2"
-            style={{ width: "90px", height: "135px", background: "#f3f3f3" }}
-            onError={(e) => (e.target.src = DEFAULT_IMAGE)}
-          />
-          <h3 className="text-lg font-semibold text-center">{book.title}</h3>
-          <p className="text-xs text-gray-600 text-center">
-            {Array.isArray(book.authors) ? book.authors.join(", ") : book.authors}
-          </p>
-          <p className="text-sm font-bold text-gray-900 mt-1 text-center">
-            ₹{book.price && book.price !== "N/A" ? book.price : "Free"}
-          </p>
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full flex flex-col gap-8">
+        <h2 className="text-2xl font-bold mb-4 text-left">Order Summary</h2>
+        <div className="mb-6">
+          {cart.map((book, idx) => (
+            <div key={book.id || idx} className="flex items-center gap-4 mb-4">
+              {book.thumbnail && book.thumbnail !== DEFAULT_IMAGE ? (
+                <img
+                  src={book.thumbnail}
+                  alt={book.title}
+                  className="rounded shadow"
+                  style={{
+                    width: "100%",
+                    maxWidth: "260px",
+                    height: "auto",
+                    maxHeight: "390px",
+                    background: "#f3f3f3",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "";
+                  }}
+                />
+              ) : (
+                <CustomCover
+                  title={book.title}
+                  authors={book.authors}
+                  width={260}
+                  height={390}
+                />
+              )}
+              <div className="flex-1">
+                <h3 className="text-base font-semibold">{book.title}</h3>
+                <p className="text-xs text-gray-600">
+                  {Array.isArray(book.authors)
+                    ? book.authors.join(", ")
+                    : book.authors}
+                </p>
+                <p className="text-sm font-bold text-gray-900 mt-1">
+                  {book.price === "Free" || book.price === "N/A"
+                    ? "Free"
+                    : `₹${book.price}`}
+                  {book.quantity && (
+                    <span className="ml-2 text-xs text-gray-500">
+                      x {book.quantity}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
+        <h2 className="text-2xl font-bold mb-4 text-left">Buy Book</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-1 font-semibold">Full Name</label>
@@ -145,7 +183,14 @@ const BuyDummy = () => {
               strokeWidth="2"
               viewBox="0 0 24 24"
             >
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
               <path
                 stroke="currentColor"
                 strokeWidth="2"
@@ -154,8 +199,14 @@ const BuyDummy = () => {
                 d="M8 12l2 2 4-4"
               />
             </svg>
-            <h3 className="text-2xl font-bold text-green-600 mb-2">Purchase Successful!</h3>
-            <p className="text-center text-gray-700">Thank you for your order.<br />You will be redirected soon.</p>
+            <h3 className="text-2xl font-bold text-green-600 mb-2">
+              Purchase Successful!
+            </h3>
+            <p className="text-center text-gray-700">
+              Thank you for your order.
+              <br />
+              You will be redirected soon.
+            </p>
           </div>
         </div>
       )}
