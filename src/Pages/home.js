@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -10,12 +11,12 @@ const Home = () => {
         <p className="text-lg md:text-xl text-gray-100 mb-6">
           Explore, Read, and Enjoy Thousands of Books Online
         </p>
-        <a
-          href="/books"
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg text-lg"
+        <Link
+          to="/books"
+          className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300"
         >
-          Browse Books
-        </a>
+          <button>Browse books</button>
+        </Link>
       </div>
     </div>
   );
