@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+.header-is-on .header-hero-img {
+  opacity: 1;
+  transform: scale(1.1) rotate(-2deg);
+}@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom styles */
+.s-blob-title {
+  @apply text-indigo-600 font-bold text-xl block;
+}
+
+.s-blob-desc {
+  @apply text-gray-600 block;
+}
+
+.s-blob-sm {
+  @apply bg-indigo-600 w-12 h-12 mx-auto flex items-center justify-center mt-4;
+}
+
+.s-blob-arrow {
+  @apply w-4;
+}
+
+.element-center {
+  @apply mx-auto;
+}
